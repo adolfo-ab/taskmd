@@ -14,3 +14,17 @@ func GetCompletionPercentage(path string) (float64, error) {
 
 	return float64(len(completed)) / float64(len(tasks)) * 100, nil
 }
+
+func GetPendingTasks(path string) ([]Task, error) {
+	files, err := findMarkdownFiles(path)
+	if err != nil {
+		return nil, err
+	}
+
+	tasks, err := findTasksInFiles(files)
+	if err != nil {
+		return nil, err
+	}
+
+	return filterPendingTasks(tasks), nil
+}
