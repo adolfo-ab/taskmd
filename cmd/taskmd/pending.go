@@ -25,9 +25,18 @@ var pendingCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Println("Pending tasks:")
+
+		// Create map of tasks by file
+		taskByFile := make(map[string][]taskmd.Task)
 		for _, task := range pendingTasks {
-			fmt.Printf("- [ ] %s\n", task.Content)
+			taskByFile[task.File] = append(taskByFile[task.File], task)
+		}
+
+		for file, tasks := range taskByFile {
+			fmt.Printf("- %s:\n", file)
+			for _, task := range tasks {
+				fmt.Printf("  - [ ] %s%s%s\n", redColor, task.Content, resetColor)
+			}
 		}
 		fmt.Printf("Total number of pending tasks in %s: %d\n", path, len(pendingTasks))
 

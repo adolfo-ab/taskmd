@@ -20,7 +20,7 @@ func findMarkdownFiles(path string) ([]string, error) {
 	return files, err
 }
 
-func findTasksInFile(file string) ([]Task, error) {
+func getTasksFromFile(file string) ([]Task, error) {
 	dat, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
@@ -31,9 +31,9 @@ func findTasksInFile(file string) ([]Task, error) {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text()) // Trimming leading and trailing white spaces
 		if strings.HasPrefix(line, "- [ ] ") {
-			tasks = append(tasks, NewTask(strings.TrimSpace(line[5:]), false))
+			tasks = append(tasks, NewTask(strings.TrimSpace(line[5:]), file, false))
 		} else if strings.HasPrefix(line, "- [x] ") {
-			tasks = append(tasks, NewTask(strings.TrimSpace(line[5:]), true))
+			tasks = append(tasks, NewTask(strings.TrimSpace(line[5:]), file, true))
 		}
 	}
 	if err := scanner.Err(); err != nil {
@@ -52,7 +52,7 @@ func findTasksInFiles(files []string) ([]Task, error) {
 		wg.Add(1)
 		go func(file string) {
 			defer wg.Done()
-			t, err := findTasksInFile(file)
+			t, err := getTasksFromFile(file)
 			if err != nil {
 				errChan <- err
 				return
