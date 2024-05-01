@@ -1,2 +1,2 @@
 # taskmd
-CLI to generate task completion reports from Markdown files
+CLI tool to provide task completion metrics from tasks in Markdown files.
