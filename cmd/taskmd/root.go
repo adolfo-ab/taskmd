@@ -12,6 +12,11 @@ var rootCmd = &cobra.Command{
 	Short: "taskmd is a simple CLI tool to provide task completion info.",
 	Long:  `taskmd parses .md files in a given directory and provides metrics about task completion`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			fmt.Println("Please provide a path to a directory containing .md files")
+			os.Exit(1)
+		}
+
 		path := args[0]
 
 		err := taskmd.VerifyPathExists(path)
