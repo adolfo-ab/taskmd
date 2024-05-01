@@ -13,6 +13,7 @@ var rootCmd = &cobra.Command{
 	Use:     "taskmd [arguments] [path]",
 	Short:   "taskmd is a simple CLI tool to provide task completion info.",
 	Long:    `taskmd parses .md files in a given directory and provides metrics about task completion`,
+	Args:    cobra.MinimumNArgs(1),
 	Version: version,
 	Run: func(cmd *cobra.Command, args []string) {
 		path := args[0]
