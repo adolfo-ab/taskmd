@@ -1,6 +1,6 @@
 package taskmd
 
-func GetTaskCompletionPercentage(path string) (float64, error) {
+func GetCompletionPercentage(path string) (float64, error) {
 	files, err := findMarkdownFiles(path)
 	if err != nil {
 		return 0, err

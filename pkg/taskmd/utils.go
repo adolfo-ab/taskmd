@@ -100,3 +100,10 @@ func filterPendingTasks(tasks []Task) []Task {
 		return !task.Completed
 	})
 }
+
+func VerifyPathExists(path string) error {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return err
+	}
+	return nil
+}

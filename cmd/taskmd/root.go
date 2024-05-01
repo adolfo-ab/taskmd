@@ -13,7 +13,14 @@ var rootCmd = &cobra.Command{
 	Long:  `taskmd parses .md files in a given directory and provides metrics about task completion`,
 	Run: func(cmd *cobra.Command, args []string) {
 		path := args[0]
-		percentage, err := taskmd.GetTaskCompletionPercentage(args[0])
+
+		err := taskmd.VerifyPathExists(path)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		percentage, err := taskmd.GetCompletionPercentage(args[0])
 		if err != nil {
 			return
 		}
