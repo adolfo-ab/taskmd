@@ -1,10 +1,12 @@
 package taskmd
 
 import (
+	"bufio"
 	"io/fs"
 	"os"
 	"path/filepath"
-	"regexp"
+	"strings"
+	"sync"
 )
 
 func findMarkdownFiles(path string) ([]string, error) {
@@ -18,40 +20,83 @@ func findMarkdownFiles(path string) ([]string, error) {
 	return files, err
 }
 
-func findNumberOfTasks(file string, completed bool) (int, error) {
-	content, err := os.ReadFile(file)
+func findTasksInFile(file string) ([]Task, error) {
+	dat, err := os.ReadFile(file)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	contentStr := string(content)
 
-	var tasks *regexp.Regexp
-	if completed {
-		tasks = completedTaskRegex
-	} else {
-		tasks = uncompletedTaskRegex
+	var tasks []Task
+	scanner := bufio.NewScanner(strings.NewReader(string(dat)))
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text()) // Trimming leading and trailing white spaces
+		if strings.HasPrefix(line, "- [ ] ") {
+			tasks = append(tasks, NewTask(strings.TrimSpace(line[5:]), false))
+		} else if strings.HasPrefix(line, "- [x] ") {
+			tasks = append(tasks, NewTask(strings.TrimSpace(line[5:]), true))
+		}
 	}
-	matches := tasks.FindAllStringIndex(contentStr, -1)
-	return len(matches), nil
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	return tasks, nil
 }
 
-func findTaskCompletionPercentage(files []string) (float64, error) {
-	completed := 0
-	pending := 0
+func findTasksInFiles(files []string) ([]Task, error) {
+	var wg sync.WaitGroup
+	taskChan := make(chan []Task)
+	errChan := make(chan error)
+	var tasks []Task
 
 	for _, file := range files {
-		c, err := findNumberOfTasks(file, true)
-		if err != nil {
-			return 0, err
-		}
-		completed += c
-
-		p, err := findNumberOfTasks(file, false)
-		if err != nil {
-			return 0, err
-		}
-		pending += p
+		wg.Add(1)
+		go func(file string) {
+			defer wg.Done()
+			t, err := findTasksInFile(file)
+			if err != nil {
+				errChan <- err
+				return
+			}
+			taskChan <- t
+		}(file)
 	}
 
-	return float64(completed) / float64(completed+pending) * 100, nil
+	go func() {
+		wg.Wait()
+		close(taskChan)
+		close(errChan)
+	}()
+
+	for t := range taskChan {
+		tasks = append(tasks, t...)
+	}
+
+	// Check if any errors occurred
+	if len(errChan) > 0 {
+		return nil, <-errChan // returns the first error encountered
+	}
+
+	return tasks, nil
+}
+
+func filterTasks(tasks []Task, condition func(Task) bool) []Task {
+	filtered := make([]Task, 0)
+	for _, task := range tasks {
+		if condition(task) {
+			filtered = append(filtered, task)
+		}
+	}
+	return filtered
+}
+
+func filterCompletedTasks(tasks []Task) []Task {
+	return filterTasks(tasks, func(task Task) bool {
+		return task.Completed
+	})
+}
+
+func filterPendingTasks(tasks []Task) []Task {
+	return filterTasks(tasks, func(task Task) bool {
+		return !task.Completed
+	})
 }
