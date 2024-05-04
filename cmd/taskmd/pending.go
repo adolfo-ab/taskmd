@@ -20,25 +20,20 @@ var pendingCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		pendingTasks, err := taskmd.GetPendingTasks(path)
+		pending, err := taskmd.GetPendingTasks(path)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
 		// Create map of tasks by file
-		taskByFile := make(map[string][]taskmd.Task)
-		for _, task := range pendingTasks {
-			taskByFile[task.File] = append(taskByFile[task.File], task)
-		}
-
-		for file, tasks := range taskByFile {
-			fmt.Printf("- %s:\n", file)
-			for _, task := range tasks {
-				fmt.Printf("  - [ ] %s%s%s\n", redColor, task.Content, resetColor)
+		for _, tf := range pending {
+			fmt.Printf("- %s:\n", tf.Path)
+			for _, task := range tf.Tasks {
+				fmt.Printf("%s%s%s%s\n", taskmd.Pending, redColor, task.Content, resetColor)
 			}
 		}
-		fmt.Printf("Total number of pending tasks in %s: %d\n", path, len(pendingTasks))
+		fmt.Printf("Total number of pending tasks in %s: %d\n", path, taskmd.GetTotalNumberOfTasks(pending))
 
 	},
 }

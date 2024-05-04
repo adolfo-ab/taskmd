@@ -24,9 +24,12 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		percentage, err := taskmd.GetCompletionPercentage(args[0])
+		// TODO: Implement!
+		/*report, err := taskmd.GenerateCompletionReport()*/
+		percentage, err := taskmd.GetCompletionPercentage(path)
 		if err != nil {
-			return
+			fmt.Print(err)
+			os.Exit(1)
 		}
 
 		colorCode := redColor // Default to red

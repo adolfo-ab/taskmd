@@ -1,30 +1,28 @@
 package taskmd
 
-func GetCompletionPercentage(path string) (float64, error) {
-	files, err := findMarkdownFiles(path)
-	if err != nil {
-		return 0, err
-	}
-
-	tasks, err := findTasksInFiles(files)
-	if err != nil {
-		return 0, err
-	}
-	completed := filterCompletedTasks(tasks)
-
-	return float64(len(completed)) / float64(len(tasks)) * 100, nil
+// TODO: Implement these 2 in metrics.go
+/*func GetCompletionReport(path string) (string, error) {
 }
 
-func GetPendingTasks(path string) ([]Task, error) {
-	files, err := findMarkdownFiles(path)
+func GetAverageNumberOfTasksPerFile(tasks[]) {
+}*/
+
+func GetCompletionPercentage(path string) (float64, error) {
+	tf, err := getTaskFiles(path)
+	if err != nil {
+		return 0, err
+	}
+	total := GetTotalNumberOfTasks(tf)
+	completed := GetTotalNumberOfTasks(filterCompletedTasks(tf))
+
+	return float64(completed) / float64(total) * 100, nil
+}
+
+func GetPendingTasks(path string) ([]TaskFile, error) {
+	tf, err := getTaskFiles(path)
 	if err != nil {
 		return nil, err
 	}
 
-	tasks, err := findTasksInFiles(files)
-	if err != nil {
-		return nil, err
-	}
-
-	return filterPendingTasks(tasks), nil
+	return filterPendingTasks(tf), nil
 }

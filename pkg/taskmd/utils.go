@@ -1,11 +1,9 @@
 package taskmd
 
 import (
-	"bufio"
 	"io/fs"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 )
 
@@ -20,55 +18,38 @@ func findMarkdownFiles(path string) ([]string, error) {
 	return files, err
 }
 
-func getTasksFromFile(file string) ([]Task, error) {
-	dat, err := os.ReadFile(file)
+func getTaskFiles(path string) ([]TaskFile, error) {
+	files, err := findMarkdownFiles(path)
 	if err != nil {
 		return nil, err
 	}
 
-	var tasks []Task
-	scanner := bufio.NewScanner(strings.NewReader(string(dat)))
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text()) // Trimming leading and trailing white spaces
-		if strings.HasPrefix(line, "- [ ] ") {
-			tasks = append(tasks, NewTask(strings.TrimSpace(line[5:]), file, false))
-		} else if strings.HasPrefix(line, "- [x] ") {
-			tasks = append(tasks, NewTask(strings.TrimSpace(line[5:]), file, true))
-		}
-	}
-	if err := scanner.Err(); err != nil {
-		return nil, err
-	}
-	return tasks, nil
-}
-
-func findTasksInFiles(files []string) ([]Task, error) {
 	var wg sync.WaitGroup
-	taskChan := make(chan []Task)
+	tfChan := make(chan TaskFile)
 	errChan := make(chan error)
-	var tasks []Task
+	var taskFiles []TaskFile
 
 	for _, file := range files {
 		wg.Add(1)
 		go func(file string) {
 			defer wg.Done()
-			t, err := getTasksFromFile(file)
+			tf, err := NewTaskFile(file)
 			if err != nil {
 				errChan <- err
 				return
 			}
-			taskChan <- t
+			tfChan <- *tf
 		}(file)
 	}
 
 	go func() {
 		wg.Wait()
-		close(taskChan)
+		close(tfChan)
 		close(errChan)
 	}()
 
-	for t := range taskChan {
-		tasks = append(tasks, t...)
+	for tf := range tfChan {
+		taskFiles = append(taskFiles, tf)
 	}
 
 	// Check if any errors occurred
@@ -76,27 +57,34 @@ func findTasksInFiles(files []string) ([]Task, error) {
 		return nil, <-errChan // returns the first error encountered
 	}
 
-	return tasks, nil
+	return taskFiles, nil
 }
 
-func filterTasks(tasks []Task, condition func(Task) bool) []Task {
-	filtered := make([]Task, 0)
-	for _, task := range tasks {
-		if condition(task) {
-			filtered = append(filtered, task)
+func filterTasks(taskFiles []TaskFile, condition func(Task) bool) []TaskFile {
+	var filteredTaskFiles []TaskFile
+	for _, tf := range taskFiles {
+		filteredTasks := make([]Task, 0)
+		for _, t := range tf.Tasks {
+			if condition(t) {
+				filteredTasks = append(filteredTasks, t)
+			}
+		}
+		tf.Tasks = filteredTasks
+		if len(filteredTasks) > 0 {
+			filteredTaskFiles = append(filteredTaskFiles, tf)
 		}
 	}
-	return filtered
+	return filteredTaskFiles
 }
 
-func filterCompletedTasks(tasks []Task) []Task {
-	return filterTasks(tasks, func(task Task) bool {
+func filterCompletedTasks(taskFiles []TaskFile) []TaskFile {
+	return filterTasks(taskFiles, func(task Task) bool {
 		return task.Completed
 	})
 }
 
-func filterPendingTasks(tasks []Task) []Task {
-	return filterTasks(tasks, func(task Task) bool {
+func filterPendingTasks(taskFiles []TaskFile) []TaskFile {
+	return filterTasks(taskFiles, func(task Task) bool {
 		return !task.Completed
 	})
 }
