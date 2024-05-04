@@ -1,8 +1,8 @@
-package taskmd
+package cmd
 
 import (
 	"fmt"
-	"github.com/adolfo-ab/taskmd/pkg/taskmd"
+	"github.com/adolfo-ab/taskmd/pkg/util"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -14,13 +14,13 @@ var pendingCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		path := args[0]
 
-		err := taskmd.VerifyPathExists(path)
+		err := util.VerifyPathExists(path)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		pending, err := taskmd.GetPendingTasks(path)
+		pending, err := util.GetPendingTasks(path)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -30,10 +30,10 @@ var pendingCmd = &cobra.Command{
 		for _, tf := range pending {
 			fmt.Printf("- %s:\n", tf.Path)
 			for _, task := range tf.Tasks {
-				fmt.Printf("%s%s%s%s\n", taskmd.Pending, redColor, task.Content, resetColor)
+				fmt.Printf("%s%s%s%s\n", util.Pending, redColor, task.Content, resetColor)
 			}
 		}
-		fmt.Printf("Total number of pending tasks in %s: %d\n", path, taskmd.GetTotalNumberOfTasks(pending))
+		fmt.Printf("Total number of pending tasks in %s: %d\n", path, util.GetTotalNumberOfTasks(pending))
 
 	},
 }

@@ -1,4 +1,4 @@
-package taskmd
+package cmd
 
 const (
 	redColor   = "\x1b[31m"

@@ -1,4 +1,4 @@
-package taskmd
+package util
 
 func GetTotalNumberOfTasks(tfs []TaskFile) int {
 	total := 0

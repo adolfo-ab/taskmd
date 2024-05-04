@@ -1,4 +1,4 @@
-package taskmd
+package util
 
 import (
 	"io/fs"

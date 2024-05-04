@@ -1,4 +1,4 @@
-package taskmd
+package util
 
 const (
 	Completed = "- [x] "

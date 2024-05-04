@@ -1,4 +1,4 @@
-package taskmd
+package util
 
 // TODO: Implement these 2 in metrics.go
 /*func GetCompletionReport(path string) (string, error) {

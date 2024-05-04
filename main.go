@@ -1,7 +1,9 @@
 package main
 
-import "github.com/adolfo-ab/taskmd/cmd/taskmd"
+import (
+	"github.com/adolfo-ab/taskmd/pkg/cmd"
+)
 
 func main() {
-	taskmd.Execute()
+	cmd.Execute()
 }
