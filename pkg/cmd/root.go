@@ -24,20 +24,8 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// TODO: Implement!
-		/*report, err := util.GenerateCompletionReport()*/
-		percentage, err := util.GetCompletionPercentage(path)
-		if err != nil {
-			fmt.Print(err)
-			os.Exit(1)
-		}
-
-		colorCode := redColor // Default to red
-		if percentage > 50 {
-			colorCode = greenColor // Change to green if task completion is over 50%
-		}
-
-		fmt.Printf("Task completion ratio for tasks in %s: %s%.2f%%%s\n", path, colorCode, percentage, resetColor)
+		output, err := util.GetCompletionReport(path)
+		fmt.Println(output)
 	},
 }
 

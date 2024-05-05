@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/adolfo-ab/taskmd/pkg/util"
+	"github.com/adolfo-ab/taskmd/pkg/util/entities"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -30,7 +31,7 @@ var pendingCmd = &cobra.Command{
 		for _, tf := range pending {
 			fmt.Printf("- %s:\n", tf.Path)
 			for _, task := range tf.Tasks {
-				fmt.Printf("%s%s%s%s\n", util.Pending, redColor, task.Content, resetColor)
+				fmt.Printf("%s%s%s%s\n", entities.Pending, util.RedColor, task.Content, util.ResetColor)
 			}
 		}
 		fmt.Printf("Total number of pending tasks in %s: %d\n", path, util.GetTotalNumberOfTasks(pending))
