@@ -1,6 +1,9 @@
 package util
 
-import "github.com/adolfo-ab/taskmd/pkg/util/entities"
+import (
+	"github.com/adolfo-ab/taskmd/pkg/util/entities"
+	"math"
+)
 
 func GetTotalNumberOfTasks(tfs []entities.TaskFile) int {
 	total := 0
@@ -61,4 +64,16 @@ func GetMinNumberOfTasks(tfs []entities.TaskFile) int {
 		}
 	}
 	return minNumTasks
+}
+
+func GetStd(tfs []entities.TaskFile, mean float64) float64 {
+	var sum float64
+
+	for _, tf := range tfs {
+		deviation := float64(len(tf.Tasks)) - mean
+		sum += deviation * deviation
+	}
+
+	variance := sum / float64(GetTotalNumberOfTasks(tfs))
+	return math.Sqrt(variance)
 }
