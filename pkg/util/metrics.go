@@ -27,3 +27,38 @@ func GetAverageNumberOfTasksPerFile(tfs []entities.TaskFile) float64 {
 
 	return float64(numTasks / numFiles)
 }
+
+func GetFilesWithMostTasks(tfs []entities.TaskFile) []entities.TaskFile {
+	maxTfs := make([]entities.TaskFile, 0, len(tfs))
+	maxNumTasks := len(tfs[0].Tasks)
+	for _, tf := range tfs[1:] {
+		if len(tf.Tasks) == maxNumTasks {
+			maxTfs = append(maxTfs, tf)
+		} else if len(tf.Tasks) > maxNumTasks {
+			maxTfs = nil
+			maxTfs = append(maxTfs, tf)
+			maxNumTasks = len(tf.Tasks)
+		}
+	}
+	return maxTfs
+}
+
+func GetMaxNumberOfTasks(tfs []entities.TaskFile) int {
+	maxNumTasks := len(tfs[0].Tasks)
+	for _, tf := range tfs[1:] {
+		if len(tf.Tasks) > maxNumTasks {
+			maxNumTasks = len(tf.Tasks)
+		}
+	}
+	return maxNumTasks
+}
+
+func GetMinNumberOfTasks(tfs []entities.TaskFile) int {
+	minNumTasks := len(tfs[0].Tasks)
+	for _, tf := range tfs[1:] {
+		if len(tf.Tasks) < minNumTasks {
+			minNumTasks = len(tf.Tasks)
+		}
+	}
+	return minNumTasks
+}
