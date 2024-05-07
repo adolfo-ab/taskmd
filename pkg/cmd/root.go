@@ -24,8 +24,8 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		output, err := util.GetCompletionReport(path)
-		fmt.Println(output)
+		report, err := util.GetCompletionReport(path)
+		fmt.Println(report)
 	},
 }
 

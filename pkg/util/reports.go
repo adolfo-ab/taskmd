@@ -17,13 +17,18 @@ func GetCompletionReport(path string) (string, error) {
 	maxTasks := GetMaxNumberOfTasks(tfs)
 	minTasks := GetMinNumberOfTasks(tfs)
 
+	color := RedColor
+	if percentage >= 50.0 {
+		color = GreenColor
+	}
+
 	return fmt.Sprintf("--------Task Completion Report--------\n"+
 		"Directory: %s\n"+
-		"Task Completion Percentage: %.2f\n"+
-		"Mean Number of Tasks per File: %.2f +/- %.2f\n"+
-		"Maximum number of tasks in one file: %d\n"+
-		"Minimum number of tasks in one file: %d\n",
-		path, percentage, mean, std, maxTasks, minTasks), nil
+		"Task completion percentage: %s%.2f%%%s\n"+
+		"Mean number of tasks/fileile: %.2f +/- %.2f\n"+
+		"Max number of tasks/file: %d\n"+
+		"Min number of tasks/file: %d\n",
+		path, color, percentage, ResetColor, mean, std, maxTasks, minTasks), nil
 }
 
 func GetPendingTasks(path string) ([]entities.TaskFile, error) {
