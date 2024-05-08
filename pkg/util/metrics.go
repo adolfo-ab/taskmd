@@ -15,6 +15,10 @@ func GetTotalNumberOfTasks(tfs []entities.TaskFile) int {
 
 func GetCompletionPercentage(tfs []entities.TaskFile) float64 {
 	total := GetTotalNumberOfTasks(tfs)
+	if total == 0 {
+		return 0.0
+	}
+
 	completed := GetTotalNumberOfTasks(filterCompletedTasks(tfs))
 
 	return float64(completed) / float64(total) * 100
