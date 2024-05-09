@@ -26,13 +26,16 @@ func GetCompletionPercentage(tfs []entities.TaskFile) float64 {
 
 func GetAverageNumberOfTasksPerFile(tfs []entities.TaskFile) float64 {
 	numFiles := len(tfs)
+	if numFiles == 0 {
+		return 0.0
+	}
 
 	numTasks := 0
 	for _, tf := range tfs {
 		numTasks += len(tf.Tasks)
 	}
 
-	return float64(numTasks / numFiles)
+	return float64(numTasks) / float64(numFiles)
 }
 
 func GetFilesWithMostTasks(tfs []entities.TaskFile) []entities.TaskFile {
